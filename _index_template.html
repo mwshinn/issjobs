@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Job server for ISS jobs</title>
+        <link rel="stylesheet" type="text/css" href="/beauter.min.css" />
+    </head>
+    <body>
+        <ul class="topnav">
+            <li><a class="brand">ISS job server</a></li>
+            <li><a id="homelink" href="/">Submit new job</a></li>
+            <li><a id="joblink" href="/view">View jobs</a></li>
+        </ul>
+        <div style="padding: 25px">
+            %MESSAGE%
+            <h2>Submit a new job </h2>
+            <form method="post" action="/submit" enctype="multipart/form-data">
+                <fieldset>
+                    <label for="inifile">Config (.ini) file</label>
+                    <input type="file" name="inifile" required /><br />
+                    <label for="jobname">Your name</label>
+                    <input type="text" pattern="[A-Za-z0-9 ]+" title="Only alphanumeric or spaces" name="username" /><br />
+                    <label for="jobname">Job name (optional)</label>
+                    <input type="text" pattern="[A-Za-z0-9_]+" title="Only alphanumeric or underscores" name="jobname" /><br />
+                    <label for="pass">Password</label>
+                    <input type="password" name="pass" required /><br />
+                    <input type="submit" value="Submit" />
+                </fieldset>
+            </form>
+        </p>
+    </body>
+</html>
