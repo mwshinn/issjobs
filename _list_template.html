@@ -11,7 +11,12 @@
             <li><a id="joblink" href="/view">View jobs</a></li>
         </ul>
         <div style="padding: 25px">
-            %MESSAGE%
+            <h2>All jobs</h2>
+            <ul>
+                {% for name in names %}
+                <li><a href="/view?job={{name}}">{{name}}</a></li>
+                {% endfor %}
+            </ul>
         </div>
     </body>
 </html>

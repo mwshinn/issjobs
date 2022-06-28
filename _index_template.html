@@ -11,7 +11,9 @@
             <li><a id="joblink" href="/view">View jobs</a></li>
         </ul>
         <div style="padding: 25px">
-            %MESSAGE%
+            {% if message != "" %}
+                <div class="alert _warning _shadow">{{message}}</div><br />
+            {% endif %}
             <h2>Submit a new job </h2>
             <form method="post" action="/submit" enctype="multipart/form-data">
                 <fieldset>

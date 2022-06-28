@@ -15,13 +15,16 @@ import os
 import datetime
 import subprocess
 import glob
+import configparser
 
-OUTPUT_DIR = "/home/max/issjobs/issjobs_files" # No trailing slash
-PASSWORD_FILE = "/home/max/issjobs/password.txt" # Path to a text file which should contain one line, the password
-PASSWORD_ACCESS_LOG = "/home/max/issjobs/password_log.txt" # Should initially be an empty file in a writable location, not in the repo
-PYTHON_PATH = "/usr/bin/python3"
-PATH_TO_ZINU = "/home/max/servers/zinu" # No trailing slash
-PATH_TO_ZSERVER = "/home/max/servers/zserver" # No trailing slash
+config = configparser.ConfigParser()
+config.read("config.ini")
+OUTPUT_DIR = config['paths']['output_dir']
+PASSWORD_FILE = config['paths']['password_file']
+PASSWORD_ACCESS_LOG = config['paths']['password_access_log']
+PYTHON_PATH = config['paths']['python_path']
+PATH_TO_ZINU = config['paths']['path_to_zinu']
+PATH_TO_ZSERVER = config['paths']['path_to_zserver']
 
 # We need to have a password for security reasons.  This entire script is not
 # at all secure, since it runs arbitrary code on a remote computer via HTTP, so
@@ -94,11 +97,9 @@ def home():
         template = f.read()
     if "m" in flask.request.args:
         m_safe = re.sub(r'[^A-Za-z0-9 ]', '', flask.request.args['m'])
-        m = f"<div class=\"alert _warning _shadow\">{m_safe}</div><br />"
-        template = template.replace("%MESSAGE%", m)
     else:
-        template = template.replace("%MESSAGE%", "")
-    return template
+        m_safe = ""
+    return flask.render_template_string(template, message=m_safe)
 
 # POST requests to submit new jobs are sent here.
 @app.route("/submit", methods=["POST"])
@@ -145,30 +146,29 @@ def run(name, person):
 # "job" GET argument)
 @app.route("/view")
 def view():
-    with open("_list_template.html") as f:
-        template = f.read()
     # Handle the case of viewing a single record
     if "job" in flask.request.args:
+        with open("_job_template.html") as f:
+            template = f.read()
         job_safe = re.sub(r'[^A-Za-z0-9_-]', '', flask.request.args['job'])
         if job_safe != flask.request.args['job']:
             return flask.redirect("/?m=Invalid file")
         with open(f"{OUTPUT_DIR}/{job_safe}/output.log") as f:
             contents = f.read()
-        output = f"<h2>{job_safe}</h2>\n\n<pre style=\"background-color: #E5E5E5; padding: 15px; white-space: pre-wrap\">\n" + str(flask.escape(contents)) + "</pre>\n"
         if os.path.isfile(f"{OUTPUT_DIR}/{job_safe}/success"):
-            output += f"<div class=\"alert _success _shadow\">Job completed successfully</div><br />"
+            status = "success"
         elif os.path.isfile(f"{OUTPUT_DIR}/{job_safe}/complete"):
-            output += f"<div class=\"alert _shadow\">Job completed with errors</div><br />"
+            status = "error"
         else:
-            output += "<button onclick=\"window.location.reload();\">Refresh</button>"
+            status = ""
+        return flask.render_template_string(template, log_file=str(flask.escape(contents)), job_name=job_safe, status=status)
     # Handle the case of viewing all records in a list
     else:
+        with open("_list_template.html") as f:
+            template = f.read()
         log_files = sorted(glob.glob(f"{OUTPUT_DIR}/*/output.log"))[::-1]
-        output = "<h2>All jobs</h2>\n"
-        for f in log_files:
-            name = f.split("/")[-2]
-            output += f"<li><a href=\"/view?job={name}\">{name}</a></li>\n"
-        output = "<ul>\n" + output + "</ul>\n"
-    template = template.replace("%MESSAGE%", output)
-    return template
+        print(template)
+        names = [f.split("/")[-2] for f in log_files]
+        print(names)
+        return flask.render_template_string(template, names=names)
 
