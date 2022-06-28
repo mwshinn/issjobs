@@ -154,7 +154,7 @@ def view():
             return flask.redirect("/?m=Invalid file")
         with open(f"{OUTPUT_DIR}/{job_safe}/output.log") as f:
             contents = f.read()
-        output = f"<h2>{job_safe}</h2>\n\n<pre style=\"background-color: #E5E5E5; padding: 15px\">\n" + contents + "</pre>\n"
+        output = f"<h2>{job_safe}</h2>\n\n<pre style=\"background-color: #E5E5E5; padding: 15px\">\n" + str(flask.escape(contents)) + "</pre>\n"
         if os.path.isfile(f"{OUTPUT_DIR}/{job_safe}/success"):
             output += f"<div class=\"alert _success _shadow\">Job completed successfully</div><br />"
         elif os.path.isfile(f"{OUTPUT_DIR}/{job_safe}/complete"):
