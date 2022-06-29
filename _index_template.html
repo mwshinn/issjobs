@@ -12,12 +12,12 @@
         </ul>
         <div style="padding: 25px">
             {% if message != "" %}
-                <div class="alert _warning _shadow">{{message}}</div><br />
+            <div class="alert _warning _shadow"><span class="-close">×</span>{{message}}</div><br />
             {% endif %}
-            <h2>Submit a new job </h2>
+            <h2>Submit a new job</h2>
             <form method="post" action="/submit" enctype="multipart/form-data">
                 <fieldset>
-                    <label for="inifile">Config (.ini) file</label>
+                    <label for="inifile">Config (.ini) file  <a href="#" onclick="openmodal('inihelp')">(help)</a> </label>
                     <input type="file" name="inifile" required /><br />
                     <label for="jobname">Your name</label>
                     <input type="text" pattern="[A-Za-z0-9 ]+" title="Only alphanumeric or spaces" name="username" /><br />
@@ -29,5 +29,17 @@
                 </fieldset>
             </form>
         </p>
+        <div id="inihelp" class="modalbox-modal ">
+            <div class="modalbox-modal-content">
+                <span class="-close">✖</span>
+                <p>The .ini file should use the following paths:</p>
+                <ul>
+                    <li>The output location and tile location will be changed to <span style="font-family:monospace">//zinu/Subjects/ISS/output/[your experiment name]</span></li>
+                    <li>Please use Windows notation (starting with //) or Mac notation (starting with smb://) to refer to remote locations.  Do NOT mapped drive letters (e.g. Z:\)</li>
+                    <li>Servers currently supported: {{servers|join(", ")}}</li>
+                </ul>
+            </div>
+        </div>
+        <script src="/beauter.min.js"></script>
     </body>
 </html>
