@@ -14,6 +14,14 @@
             {% if message != "" %}
             <div class="alert _warning _shadow"><span class="-close">×</span>{{message}}</div><br />
             {% endif %}
+            {% if currently_running != [] %}
+            <div class="alert _shadow">There {{currently_running|plural("is","are")}} currently {{currently_running|length}} job{{currently_running|plural}} running:
+                <ul>{% for name in currently_running %}
+                <li><a href="/view?job={{name}}" class="_t-black">{{name}}</a></li>
+                {% endfor %}
+                </ul>
+            </div><br />
+            {% endif %}
             <h2>Submit a new job</h2>
             <form method="post" action="/submit" enctype="multipart/form-data">
                 <fieldset>

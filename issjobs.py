@@ -103,7 +103,35 @@ def home():
         m_safe = re.sub(r'[^A-Za-z0-9 ]', '', flask.request.args['m'])
     else:
         m_safe = ""
-    return flask.render_template_string(template, message=m_safe, servers=SERVERS.keys())
+    return flask.render_template_string(template, message=m_safe, servers=SERVERS.keys(), currently_running=currently_running())
+
+def currently_running():
+    """List of job names that are currently running"""
+    completed = sorted(glob.glob(f"{OUTPUT_DIR}/*/complete"))[::-1]
+    log_files = sorted(glob.glob(f"{OUTPUT_DIR}/*/output.log"))[::-1]
+    names_log = [f.split("/")[-2] for f in log_files]
+    names_completed = [f.split("/")[-2] for f in completed]
+    running = set(names_log)-set(names_completed)
+    return sorted(list(running))
+
+def succeeded():
+    """List of job names that succeeded"""
+    successful = sorted(glob.glob(f"{OUTPUT_DIR}/*/success"))[::-1]
+    names_success = [f.split("/")[-2] for f in successful]
+    return sorted(list(names_success))
+
+def failed():
+    """List of job names that failed"""
+    successful = sorted(glob.glob(f"{OUTPUT_DIR}/*/success"))[::-1]
+    names_success = [f.split("/")[-2] for f in successful]
+    return sorted(list(names_success))
+
+@app.template_filter('plural')
+def plural(l, singular = '', plural = 's'):
+    if len(l) == 1:
+        return singular
+    else:
+        return plural
 
 # POST requests to submit new jobs are sent here.
 @app.route("/submit", methods=["POST"])
@@ -175,5 +203,5 @@ def view():
         print(template)
         names = [f.split("/")[-2] for f in log_files]
         print(names)
-        return flask.render_template_string(template, names=names)
+        return flask.render_template_string(template, names=names, succeeded=succeeded(), currently_running=currently_running())
 
