@@ -108,9 +108,10 @@ def home():
 def currently_running():
     """List of job names that are currently running"""
     completed = sorted(glob.glob(f"{OUTPUT_DIR}/*/complete"))[::-1]
+    success = sorted(glob.glob(f"{OUTPUT_DIR}/*/success"))[::-1]
     log_files = sorted(glob.glob(f"{OUTPUT_DIR}/*/output.log"))[::-1]
     names_log = [f.split("/")[-2] for f in log_files]
-    names_completed = [f.split("/")[-2] for f in completed]
+    names_completed = [f.split("/")[-2] for f in completed+success]
     running = set(names_log)-set(names_completed)
     return sorted(list(running))
 
