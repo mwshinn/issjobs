@@ -206,3 +206,16 @@ def view():
         print(names)
         return flask.render_template_string(template, names=names, succeeded=succeeded(), currently_running=currently_running())
 
+# Retrieve the config file
+@app.route("/ini")
+def showini():
+    # Handle the case of viewing a single record
+    if "job" not in flask.request.args:
+        return flask.redirect("/?m=Invalid file")
+    job_safe = re.sub(r'[^A-Za-z0-9_-]', '', flask.request.args['job'])
+    if job_safe != flask.request.args['job']:
+        return flask.redirect("/?m=Invalid file")
+    path = f"{OUTPUT_DIR}/{job_safe}/config.original.ini"
+    if not os.path.isfile(path):
+        return flask.redirect("/?m=Invalid job name")
+    return flask.send_file(path, as_attachment=False, mimetype='text/plain')
